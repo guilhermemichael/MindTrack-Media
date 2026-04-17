@@ -1,5 +1,6 @@
 # app/routes/auth.py
 from flask import Blueprint, request, jsonify, session
+from flask_login import login_user, logout_user, login_required
 from app.extensions import db, bcrypt
 from app.models.user import User
 
@@ -53,13 +54,15 @@ def login():
     if not user or not bcrypt.check_password_hash(user.password_hash, password):
         return jsonify({"error": "Invalid credentials"}), 401
 
-    session["user_id"] = user.id
+    login_user(user)
 
     return jsonify({"message": "Login realizado com sucesso"})
 
 
 # LOGOUT
 @bp.post("/logout")
+@login_required
 def logout():
+    logout_user()
     session.clear()
     return jsonify({"message": "Logout realizado"})

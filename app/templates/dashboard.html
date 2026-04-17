@@ -1,153 +1,699 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MindTrack Media - Dashboard</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #0f172a;
-            color: #f1f5f9;
-            margin: 0;
+{% extends "base.html" %}
+
+{% block title %}MindTrack Media | Dashboard de impacto emocional{% endblock %}
+{% block meta_description %}Dashboard analitico do MindTrack Media com KPIs, tendencias emocionais, eficiencia de tempo e insights sobre seu consumo de midia.{% endblock %}
+
+{% block body %}
+<main class="page-shell dashboard-page">
+    <header class="topbar" data-reveal>
+        <div>
+            <div class="brand-mark">MindTrack Media</div>
+            <p class="muted topbar-copy">Nao mostra apenas o que voce gosta. Mostra o que te afeta.</p>
+        </div>
+        <div class="topbar-actions">
+            <button class="btn btn-secondary" type="button" id="refreshButton">Atualizar dados</button>
+            <button class="btn btn-secondary" type="button" id="logoutButton">Sair</button>
+        </div>
+    </header>
+
+    <section class="hero glass" data-reveal style="animation-delay: 80ms;">
+        <div>
+            <span class="badge">Behavior-aware media intelligence</span>
+            <h1>Painel de consumo com leitura emocional, eficiencia e padrao real.</h1>
+            <p class="hero-copy">
+                Registre um filme ou serie e veja o dashboard reagir com KPIs, grafico temporal, ranking e um insight automatico do seu momento recente.
+            </p>
+        </div>
+        <div class="hero-insight">
+            <span class="section-label">Insight atual</span>
+            <p id="heroInsight">Carregando leitura do seu comportamento recente...</p>
+        </div>
+    </section>
+
+    <section class="dashboard-grid">
+        <div class="main-column">
+            <section class="kpi-grid">
+                <article class="kpi-card glass" data-reveal style="animation-delay: 120ms;">
+                    <span class="kpi-label">Tempo consumido</span>
+                    <strong id="kpiDuration">0 min</strong>
+                    <small class="muted">Tempo total registrado</small>
+                </article>
+                <article class="kpi-card glass" data-reveal style="animation-delay: 160ms;">
+                    <span class="kpi-label">Media de nota</span>
+                    <strong id="kpiRating">0.0</strong>
+                    <small class="muted">Qualidade percebida</small>
+                </article>
+                <article class="kpi-card glass" data-reveal style="animation-delay: 200ms;">
+                    <span class="kpi-label">Delta de humor</span>
+                    <strong id="kpiMood">0.0</strong>
+                    <small class="muted">Impacto emocional medio</small>
+                </article>
+                <article class="kpi-card glass" data-reveal style="animation-delay: 240ms;">
+                    <span class="kpi-label">Eficiencia media</span>
+                    <strong id="kpiEfficiency">0.0</strong>
+                    <small class="muted">Valor por unidade de tempo</small>
+                </article>
+            </section>
+
+            <section class="panel glass" data-reveal style="animation-delay: 280ms;">
+                <div class="panel-head">
+                    <div>
+                        <span class="section-label">Registro</span>
+                        <h2>Adicionar nova midia</h2>
+                    </div>
+                    <p class="muted">Os dados alimentam metrics materializadas e refletem no dashboard automaticamente.</p>
+                </div>
+
+                <form id="mediaForm" class="media-form">
+                    <div class="field field-span-2">
+                        <label for="name">Titulo consumido</label>
+                        <input class="input" id="name" name="name" placeholder="Ex.: Harry Potter e a Pedra Filosofal" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="mediaType">Tipo de midia</label>
+                        <select class="select" id="mediaType" name="mediaType" required>
+                            <option value="FILME">Filme</option>
+                            <option value="SERIE">Serie</option>
+                            <option value="ANIME">Anime</option>
+                            <option value="DORAMA">Dorama</option>
+                            <option value="LIVRO">Livro</option>
+                            <option value="REALITY">Reality</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="duration">Duracao em minutos</label>
+                        <input class="input" id="duration" name="duration" placeholder="92" type="number" min="1" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="rating">Nota atribuida</label>
+                        <input class="input" id="rating" name="rating" placeholder="8.5" type="number" step="0.1" min="0" max="10" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="classification">Classificacao final</label>
+                        <select class="select" id="classification" name="classification" required>
+                            <option value="POSITIVO">Valeu</option>
+                            <option value="NEUTRO">Neutro</option>
+                            <option value="NEGATIVO">Nao valeu</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="moodBefore">Humor antes</label>
+                        <input class="input" id="moodBefore" name="moodBefore" placeholder="0 a 10" type="number" min="0" max="10" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="moodAfter">Humor depois</label>
+                        <input class="input" id="moodAfter" name="moodAfter" placeholder="0 a 10" type="number" min="0" max="10" required>
+                    </div>
+
+                    <div class="field field-span-2">
+                        <label for="emotion">Emocao predominante</label>
+                        <select class="select" id="emotion" name="emotion" required>
+                            <option value="FELIZ">Feliz</option>
+                            <option value="TRISTE">Triste</option>
+                            <option value="ANSIOSO">Ansioso</option>
+                            <option value="MOTIVADO">Motivado</option>
+                            <option value="ENTEDIADO">Entediado</option>
+                            <option value="NEUTRO">Neutro</option>
+                        </select>
+                    </div>
+
+                    <div class="form-actions field-span-2">
+                        <button class="btn" type="submit" id="addMediaButton">Adicionar e recalcular</button>
+                        <p id="formError" class="error-text" aria-live="polite"></p>
+                    </div>
+                </form>
+            </section>
+
+            <section class="chart-grid">
+                <article class="panel glass" data-reveal style="animation-delay: 320ms;">
+                    <div class="panel-head compact">
+                        <div>
+                            <span class="section-label">Tendencia</span>
+                            <h2>Impacto emocional ao longo do tempo</h2>
+                        </div>
+                    </div>
+                    <canvas id="moodChart" height="120"></canvas>
+                </article>
+
+                <article class="panel glass" data-reveal style="animation-delay: 360ms;">
+                    <div class="panel-head compact">
+                        <div>
+                            <span class="section-label">Recentes</span>
+                            <h2>Ultimos registros</h2>
+                        </div>
+                    </div>
+                    <div class="recent-list" id="recentList"></div>
+                </article>
+            </section>
+        </div>
+
+        <aside class="side-column">
+            <section class="panel glass" data-reveal style="animation-delay: 220ms;">
+                <div class="panel-head compact">
+                    <div>
+                        <span class="section-label">Panorama</span>
+                        <h2>Distribuicao por tipo</h2>
+                    </div>
+                </div>
+                <div class="type-list" id="typeList"></div>
+            </section>
+
+            <section class="panel glass" data-reveal style="animation-delay: 300ms;">
+                <div class="panel-head compact">
+                    <div>
+                        <span class="section-label">Top ranking</span>
+                        <h2>Conteudos mais eficientes</h2>
+                    </div>
+                </div>
+                <div class="ranking-list" id="rankingList"></div>
+            </section>
+
+            <section class="panel glass" data-reveal style="animation-delay: 380ms;">
+                <div class="panel-head compact">
+                    <div>
+                        <span class="section-label">Resumo vivo</span>
+                        <h2>Estado da base</h2>
+                    </div>
+                </div>
+                <dl class="summary-pairs">
+                    <div><dt>Registros</dt><dd id="entryCount">0</dd></div>
+                    <div><dt>Melhor emocao</dt><dd id="bestEmotion">-</dd></div>
+                    <div><dt>Media dominante</dt><dd id="dominantType">-</dd></div>
+                </dl>
+            </section>
+        </aside>
+    </section>
+</main>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .dashboard-page {
+        display: grid;
+        gap: 22px;
+    }
+
+    .topbar,
+    .hero,
+    .panel,
+    .kpi-card {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+    }
+
+    .topbar-copy {
+        margin: 8px 0 0;
+    }
+
+    .topbar-actions {
+        display: flex;
+        gap: 12px;
+    }
+
+    .hero {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 22px;
+        padding: 28px;
+    }
+
+    .hero h1 {
+        margin: 14px 0 12px;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: clamp(2.2rem, 3vw, 3.6rem);
+        line-height: 1.05;
+        max-width: 12ch;
+    }
+
+    .hero-copy {
+        max-width: 60ch;
+        color: #cbd5e1;
+    }
+
+    .hero-insight {
+        align-self: stretch;
+        padding: 22px;
+        border-radius: 22px;
+        background: linear-gradient(180deg, rgba(14, 165, 233, 0.14), rgba(20, 184, 166, 0.08));
+        border: 1px solid rgba(94, 234, 212, 0.18);
+    }
+
+    .hero-insight p {
+        margin: 12px 0 0;
+        font-size: 1rem;
+        line-height: 1.7;
+        color: #f8fafc;
+    }
+
+    .section-label {
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #7dd3fc;
+        font-size: 0.76rem;
+    }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.6fr) minmax(300px, 0.9fr);
+        gap: 22px;
+    }
+
+    .main-column,
+    .side-column {
+        display: grid;
+        gap: 22px;
+        align-content: start;
+    }
+
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .kpi-card {
+        padding: 22px;
+    }
+
+    .kpi-label {
+        color: #93c5fd;
+        font-size: 0.84rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .kpi-card strong {
+        display: block;
+        margin: 12px 0 10px;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: clamp(1.8rem, 2vw, 2.6rem);
+    }
+
+    .panel {
+        padding: 24px;
+    }
+
+    .panel-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 20px;
+    }
+
+    .panel-head.compact {
+        margin-bottom: 16px;
+    }
+
+    .panel-head h2 {
+        margin: 8px 0 0;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 1.4rem;
+    }
+
+    .media-form {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .field-span-2 {
+        grid-column: span 2;
+    }
+
+    .form-actions {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+    }
+
+    .form-actions .btn {
+        min-width: 220px;
+    }
+
+    .error-text {
+        margin: 0;
+        color: var(--danger);
+    }
+
+    .chart-grid {
+        display: grid;
+        grid-template-columns: 1.25fr 0.75fr;
+        gap: 22px;
+    }
+
+    .recent-list,
+    .type-list,
+    .ranking-list {
+        display: grid;
+        gap: 12px;
+    }
+
+    .recent-item,
+    .type-item,
+    .ranking-item {
+        display: grid;
+        gap: 6px;
+        padding: 14px 16px;
+        border-radius: 16px;
+        background: rgba(15, 23, 42, 0.5);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .recent-meta,
+    .type-meta,
+    .ranking-meta {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        color: var(--muted);
+        font-size: 0.92rem;
+    }
+
+    .summary-pairs {
+        display: grid;
+        gap: 12px;
+        margin: 0;
+    }
+
+    .summary-pairs div {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 16px;
+        border-radius: 16px;
+        background: rgba(15, 23, 42, 0.52);
+    }
+
+    .summary-pairs dt {
+        color: var(--muted);
+    }
+
+    .summary-pairs dd {
+        margin: 0;
+        font-family: "Space Grotesk", sans-serif;
+        color: #f8fafc;
+    }
+
+    .empty-state {
+        padding: 18px;
+        border-radius: 16px;
+        border: 1px dashed rgba(148, 163, 184, 0.18);
+        color: var(--muted);
+        text-align: center;
+    }
+
+    @media (max-width: 1080px) {
+        .dashboard-grid,
+        .hero,
+        .chart-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .kpi-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 720px) {
+        .topbar,
+        .topbar-actions,
+        .panel-head,
+        .form-actions,
+        .recent-meta,
+        .type-meta,
+        .ranking-meta {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .kpi-grid,
+        .media-form {
+            grid-template-columns: 1fr;
+        }
+
+        .field-span-2 {
+            grid-column: auto;
+        }
+
+        .hero,
+        .panel,
+        .kpi-card {
             padding: 20px;
         }
+    }
+</style>
+{% endblock %}
 
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: #1e293b;
-            padding: 20px;
-            border-radius: 10px;
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const mediaForm = document.getElementById("mediaForm");
+    const addMediaButton = document.getElementById("addMediaButton");
+    const refreshButton = document.getElementById("refreshButton");
+    const logoutButton = document.getElementById("logoutButton");
+    const formError = document.getElementById("formError");
+
+    let moodChart;
+
+    function formatNumber(value, digits = 1) {
+        return Number(value || 0).toLocaleString("pt-BR", {
+            minimumFractionDigits: digits,
+            maximumFractionDigits: digits
+        });
+    }
+
+    function formatDuration(totalMinutes) {
+        const minutes = Number(totalMinutes || 0);
+        if (minutes < 60) return `${minutes} min`;
+        const hours = Math.floor(minutes / 60);
+        const remaining = minutes % 60;
+        return remaining ? `${hours}h ${remaining}min` : `${hours}h`;
+    }
+
+    function renderEmptyState(containerId, message) {
+        document.getElementById(containerId).innerHTML = `<div class="empty-state">${message}</div>`;
+    }
+
+    function updateChart(timeline) {
+        const canvas = document.getElementById("moodChart");
+        if (!canvas) return;
+
+        const labels = timeline.map((item) => item.label);
+        const values = timeline.map((item) => item.delta_mood);
+        const ratings = timeline.map((item) => item.rating);
+
+        if (moodChart) {
+            moodChart.destroy();
         }
 
-        input, select {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 6px;
-            border: none;
-        }
-
-        button {
-            width: 100%;
-            padding: 10px;
-            margin-top: 15px;
-            border: none;
-            background: #3b82f6;
-            color: white;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #2563eb;
-        }
-
-        #error {
-            color: red;
-            margin-top: 10px;
-        }
-
-        #results {
-            margin-top: 20px;
-            background: #334155;
-            padding: 10px;
-            border-radius: 6px;
-        }
-
-        pre {
-            color: #f1f5f9;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h2>Dashboard</h2>
-
-        <h3>Add Media</h3>
-        <input id="name" placeholder="Nome">
-        <select id="mediaType">
-            <option value="FILME">Filme</option>
-            <option value="SERIE">Serie</option>
-            <option value="ANIME">Anime</option>
-            <option value="DORAMA">Dorame</option>
-            <option value="LIVRO">Livro</option>
-            <option value="REALITY">Reality</option>
-        </select>
-        <input id="duration" placeholder="Duração (min)" type="number">
-        <input id="rating" placeholder="Nota" type="number" step="0.1">
-        <select id="classification">
-            <option value="VALEU">Valeu</option>
-            <option value="NEUTRO">Neutro</option>
-            <option value="NAO_VALEU">Não Valeu</option>
-        </select>
-        <input id="moodBefore" placeholder="Mood Before (0-10)" type="number">
-        <input id="moodAfter" placeholder="Mood After (0-10)" type="number">
-        <select id="emotion">
-            <option value="FELIZ">Feliz</option>
-            <option value="TRISTE">Triste</option>
-            <option value="ANSIOSO">Ansioso</option>
-            <option value="MOTIVADO">Motivado</option>
-            <option value="ENTEDIADO">Entediado</option>
-            <option value="NEUTRO">Neutro</option>
-        </select>
-
-        <button onclick="addMedia()">Adicionar</button>
-
-        <button onclick="getSummary()">Get Summary</button>
-
-        <p id="error"></p>
-
-        <div id="results"></div>
-    </div>
-
-    <script>
-        async function addMedia() {
-            try {
-                const res = await fetch("/api/media", {
-                    method: "POST",
-                    credentials: "include",
-                    headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify({
-                        name: document.getElementById("name").value,
-                        media_type: document.getElementById("mediaType").value,
-                        duration_min: parseInt(document.getElementById("duration").value),
-                        rating: parseFloat(document.getElementById("rating").value),
-                        classification: document.getElementById("classification").value,
-                        mood_before: parseInt(document.getElementById("moodBefore").value),
-                        mood_after: parseInt(document.getElementById("moodAfter").value),
-                        primary_emotion: document.getElementById("emotion").value
-                    })
-                });
-
-                const data = await res.json();
-
-                if (!res.ok) throw new Error(data.error);
-
-                alert("Adicionado!");
-
-            } catch (err) {
-                document.getElementById("error").innerText = err.message;
+        moodChart = new Chart(canvas, {
+            type: "line",
+            data: {
+                labels,
+                datasets: [
+                    {
+                        label: "Impacto emocional",
+                        data: values,
+                        borderColor: "#38bdf8",
+                        backgroundColor: "rgba(56, 189, 248, 0.16)",
+                        borderWidth: 3,
+                        tension: 0.32,
+                        fill: true,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    },
+                    {
+                        label: "Nota",
+                        data: ratings,
+                        borderColor: "#f59e0b",
+                        backgroundColor: "rgba(245, 158, 11, 0.12)",
+                        borderWidth: 2,
+                        tension: 0.32,
+                        pointRadius: 3,
+                        pointHoverRadius: 5
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: "#cbd5e1"
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: "#94a3b8" },
+                        grid: { color: "rgba(148, 163, 184, 0.08)" }
+                    },
+                    y: {
+                        ticks: { color: "#94a3b8" },
+                        grid: { color: "rgba(148, 163, 184, 0.08)" }
+                    }
+                }
             }
+        });
+    }
+
+    function renderRecent(entries) {
+        if (!entries.length) {
+            renderEmptyState("recentList", "Adicione sua primeira midia para ver a trilha recente.");
+            return;
         }
 
-        async function getSummary() {
-            try {
-                const res = await fetch("/api/analytics/summary", {
-                    credentials: "include"
-                });
+        document.getElementById("recentList").innerHTML = entries.map((item) => `
+            <article class="recent-item">
+                <strong>${item.name}</strong>
+                <div class="recent-meta">
+                    <span>${item.media_type_label}</span>
+                    <span>${item.watched_at_label}</span>
+                </div>
+                <div class="recent-meta">
+                    <span>Nota ${formatNumber(item.rating, 1)}</span>
+                    <span>Delta ${item.delta_mood > 0 ? "+" : ""}${item.delta_mood}</span>
+                </div>
+            </article>
+        `).join("");
+    }
 
-                const data = await res.json();
+    function renderTypes(byType, dominantTypeLabel) {
+        const entries = Object.values(byType || {});
+        if (!entries.length) {
+            renderEmptyState("typeList", "Sem distribuicao ainda. Registre alguns titulos para enxergar seus padroes.");
+            return;
+        }
 
-                if (!res.ok) throw new Error(data.error);
+        document.getElementById("typeList").innerHTML = entries.map((item) => `
+            <article class="type-item">
+                <strong>${item.label}${item.label === dominantTypeLabel ? " · dominante" : ""}</strong>
+                <div class="type-meta">
+                    <span>${item.count} registro(s)</span>
+                    <span>Delta ${formatNumber(item.avg_delta_mood, 1)}</span>
+                </div>
+                <div class="type-meta">
+                    <span>Eficiencia ${formatNumber(item.avg_time_efficiency, 2)}</span>
+                    <span>Nota ${formatNumber(item.avg_rating, 1)}</span>
+                </div>
+            </article>
+        `).join("");
+    }
 
-                document.getElementById("results").innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+    function renderRanking(items) {
+        if (!items.length) {
+            renderEmptyState("rankingList", "Seus melhores conteudos por eficiencia vao aparecer aqui.");
+            return;
+        }
 
-            } catch (err) {
-                document.getElementById("error").innerText = err.message;
+        document.getElementById("rankingList").innerHTML = items.map((item, index) => `
+            <article class="ranking-item">
+                <strong>#${index + 1} ${item.name}</strong>
+                <div class="ranking-meta">
+                    <span>${item.media_type_label}</span>
+                    <span>Eficiencia ${formatNumber(item.time_efficiency, 2)}</span>
+                </div>
+            </article>
+        `).join("");
+    }
+
+    async function updateDashboard() {
+        const data = await api("/api/analytics/summary");
+
+        document.getElementById("kpiDuration").textContent = formatDuration(data.total_duration_min);
+        document.getElementById("kpiRating").textContent = formatNumber(data.avg_rating, 1);
+        document.getElementById("kpiMood").textContent = `${data.avg_delta_mood > 0 ? "+" : ""}${formatNumber(data.avg_delta_mood, 1)}`;
+        document.getElementById("kpiEfficiency").textContent = formatNumber(data.avg_time_efficiency, 2);
+        document.getElementById("entryCount").textContent = data.total_medias;
+        document.getElementById("bestEmotion").textContent = data.top_emotion_label || "-";
+        document.getElementById("dominantType").textContent = data.dominant_type_label || "-";
+        document.getElementById("heroInsight").textContent = data.insight || "Continue registrando para gerar insights.";
+
+        renderTypes(data.by_type, data.dominant_type_label);
+        renderRanking(data.top_efficiency || []);
+        renderRecent(data.recent_entries || []);
+
+        if ((data.mood_timeline || []).length) {
+            updateChart(data.mood_timeline);
+        } else {
+            if (moodChart) {
+                moodChart.destroy();
+                moodChart = null;
             }
+            renderEmptyState("recentList", "Adicione sua primeira midia para ver a trilha recente.");
         }
-    </script>
-</body>
-</html>
+    }
+
+    mediaForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        formError.textContent = "";
+        addMediaButton.disabled = true;
+
+        try {
+            await api("/api/media/", {
+                method: "POST",
+                body: JSON.stringify({
+                    name: document.getElementById("name").value.trim(),
+                    media_type: document.getElementById("mediaType").value,
+                    duration_min: parseInt(document.getElementById("duration").value, 10),
+                    rating: parseFloat(document.getElementById("rating").value),
+                    classification: document.getElementById("classification").value,
+                    mood_before: parseInt(document.getElementById("moodBefore").value, 10),
+                    mood_after: parseInt(document.getElementById("moodAfter").value, 10),
+                    primary_emotion: document.getElementById("emotion").value
+                })
+            });
+
+            mediaForm.reset();
+            toast("Midia adicionada com sucesso.");
+            await updateDashboard();
+        } catch (error) {
+            formError.textContent = error.message;
+            toast(error.message, "error");
+        } finally {
+            addMediaButton.disabled = false;
+        }
+    });
+
+    refreshButton.addEventListener("click", async () => {
+        try {
+            await updateDashboard();
+            toast("Dashboard atualizado.");
+        } catch (error) {
+            toast(error.message, "error");
+        }
+    });
+
+    logoutButton.addEventListener("click", async () => {
+        try {
+            await api("/api/auth/logout", {
+                method: "POST"
+            });
+            window.location.href = "/login";
+        } catch (error) {
+            toast(error.message, "error");
+        }
+    });
+
+    updateDashboard().catch((error) => {
+        formError.textContent = error.message;
+        toast(error.message, "error");
+    });
+</script>
+{% endblock %}

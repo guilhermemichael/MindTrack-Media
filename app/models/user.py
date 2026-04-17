@@ -1,8 +1,9 @@
 # app/models/user.py
 from app.extensions import db
+from flask_login import UserMixin
 from sqlalchemy import CheckConstraint, Index, func
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)

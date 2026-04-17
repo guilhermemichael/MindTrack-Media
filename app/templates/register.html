@@ -1,102 +1,193 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MindTrack Media - Register</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #0f172a;
-            color: #f1f5f9;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+{% extends "base.html" %}
+
+{% block title %}MindTrack Media | Criar conta{% endblock %}
+{% block meta_description %}Crie sua conta no MindTrack Media para registrar filmes, series e descobrir como seu consumo afeta humor, comportamento e eficiencia.{% endblock %}
+
+{% block body %}
+<main class="page-shell auth-page">
+    <section class="auth-layout">
+        <div class="auth-copy glass" data-reveal>
+            <div class="brand-mark">MindTrack Media</div>
+            <span class="badge">Mindful entertainment analytics</span>
+            <h1>Monte seu historico emocional de consumo em uma plataforma que parece produto.</h1>
+            <p class="lead">
+                Registre experiencias, acompanhe seus padroes e transforme entretenimento em inteligencia pessoal acionavel.
+            </p>
+
+            <div class="feature-list">
+                <article>
+                    <strong>Registro rapido e estruturado</strong>
+                    <p>Cadastre o que assistiu, como estava antes e como ficou depois.</p>
+                </article>
+                <article>
+                    <strong>Dashboard que se atualiza</strong>
+                    <p>KPIs, grafico e ranking para leitura imediata do que vale seu tempo.</p>
+                </article>
+                <article>
+                    <strong>Insight automatico</strong>
+                    <p>Receba uma interpretacao inicial sobre o impacto do seu consumo recente.</p>
+                </article>
+            </div>
+        </div>
+
+        <div class="auth-card glass" data-reveal style="animation-delay: 120ms;">
+            <div class="auth-header">
+                <span class="auth-eyebrow">Primeiro acesso</span>
+                <h2>Criar conta</h2>
+                <p class="muted">Em menos de um minuto voce entra no seu painel de inteligencia comportamental.</p>
+            </div>
+
+            <form id="registerForm" class="auth-form">
+                <div class="field">
+                    <label for="username">Nome de usuario</label>
+                    <input class="input" id="username" placeholder="Seu nome no produto" autocomplete="username" required>
+                </div>
+
+                <div class="field">
+                    <label for="email">Email</label>
+                    <input class="input" id="email" placeholder="voce@exemplo.com" type="email" autocomplete="email" required>
+                </div>
+
+                <div class="field">
+                    <label for="password">Senha</label>
+                    <input class="input" id="password" type="password" placeholder="Crie uma senha forte" autocomplete="new-password" required>
+                </div>
+
+                <button class="btn" type="submit" id="registerButton">Criar minha conta</button>
+            </form>
+
+            <p id="error" class="error-text" aria-live="polite"></p>
+            <p class="auth-footer muted">Ja tem conta? <a href="/login">Entrar</a></p>
+        </div>
+    </section>
+</main>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .auth-page {
+        min-height: 100vh;
+        display: grid;
+        align-items: center;
+    }
+
+    .auth-layout {
+        display: grid;
+        grid-template-columns: 1.08fr 0.92fr;
+        gap: 24px;
+    }
+
+    .auth-copy,
+    .auth-card {
+        padding: 34px;
+    }
+
+    .auth-copy h1,
+    .auth-card h2 {
+        margin: 18px 0 12px;
+        font-family: "Space Grotesk", sans-serif;
+        line-height: 1.05;
+    }
+
+    .auth-copy h1 {
+        font-size: clamp(2.4rem, 4vw, 4.2rem);
+        max-width: 12ch;
+    }
+
+    .lead {
+        max-width: 60ch;
+        color: #cbd5e1;
+        font-size: 1.02rem;
+    }
+
+    .feature-list {
+        display: grid;
+        gap: 16px;
+        margin-top: 28px;
+    }
+
+    .feature-list article {
+        padding: 18px;
+        border-radius: 18px;
+        background: rgba(15, 23, 42, 0.46);
+        border: 1px solid rgba(148, 163, 184, 0.14);
+    }
+
+    .feature-list strong {
+        display: block;
+        margin-bottom: 8px;
+        font-family: "Space Grotesk", sans-serif;
+    }
+
+    .feature-list p {
+        margin: 0;
+        color: var(--muted);
+    }
+
+    .auth-eyebrow {
+        color: #5eead4;
+        font-size: 0.88rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .auth-form {
+        display: grid;
+        gap: 18px;
+        margin-top: 24px;
+    }
+
+    .auth-footer {
+        margin: 20px 0 0;
+    }
+
+    .error-text {
+        min-height: 24px;
+        margin: 12px 0 0;
+        color: var(--danger);
+    }
+
+    @media (max-width: 940px) {
+        .auth-layout {
+            grid-template-columns: 1fr;
         }
 
-        .container {
-            background: #1e293b;
-            padding: 20px;
-            border-radius: 10px;
-            width: 300px;
-            text-align: center;
+        .auth-copy h1 {
+            max-width: none;
         }
+    }
+</style>
+{% endblock %}
 
-        input {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 6px;
-            border: none;
+{% block scripts %}
+<script>
+    const registerForm = document.getElementById("registerForm");
+    const registerButton = document.getElementById("registerButton");
+    const errorNode = document.getElementById("error");
+
+    registerForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        errorNode.textContent = "";
+        registerButton.disabled = true;
+
+        try {
+            await api("/api/auth/register", {
+                method: "POST",
+                body: JSON.stringify({
+                    username: document.getElementById("username").value.trim(),
+                    email: document.getElementById("email").value.trim(),
+                    password: document.getElementById("password").value
+                })
+            });
+
+            toast("Conta criada com sucesso.");
+            window.location.href = "/login";
+        } catch (error) {
+            errorNode.textContent = error.message;
+            toast(error.message, "error");
+        } finally {
+            registerButton.disabled = false;
         }
-
-        button {
-            width: 100%;
-            padding: 10px;
-            margin-top: 15px;
-            border: none;
-            background: #3b82f6;
-            color: white;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #2563eb;
-        }
-
-        #error {
-            color: red;
-            margin-top: 10px;
-        }
-
-        a {
-            color: #3b82f6;
-            text-decoration: none;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h2>Register</h2>
-
-        <input id="username" placeholder="Username">
-        <input id="email" placeholder="Email" type="email">
-        <input id="password" type="password" placeholder="Senha">
-
-        <button onclick="register()">Registrar</button>
-
-        <p id="error"></p>
-
-        <p>Já tem conta? <a href="/login">Login</a></p>
-    </div>
-
-    <script>
-        async function register() {
-            try {
-                const res = await fetch("/api/auth/register", {
-                    method: "POST",
-                    headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify({
-                        username: document.getElementById("username").value,
-                        email: document.getElementById("email").value,
-                        password: document.getElementById("password").value
-                    })
-                });
-
-                const data = await res.json();
-
-                if (!res.ok) throw new Error(data.error);
-
-                alert("Conta criada!");
-                window.location.href = "/login";
-
-            } catch (err) {
-                document.getElementById("error").innerText = err.message;
-            }
-        }
-    </script>
-</body>
-</html>
+    });
+</script>
+{% endblock %}

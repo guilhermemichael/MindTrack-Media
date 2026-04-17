@@ -6,8 +6,8 @@ from app.models.enums import MediaType, Classification, Emotion
 class Media(db.Model):
     __tablename__ = "medias"
 
-    id = db.Column(db.BigInteger, primary_key=True)
-    user_id = db.Column(db.BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
 
     name = db.Column(db.String(200), nullable=False)
     media_type = db.Column(db.Enum(MediaType), nullable=False, index=True)
