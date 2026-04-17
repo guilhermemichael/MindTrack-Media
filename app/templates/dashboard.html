@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindTrack Media - Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: #f1f5f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 15px;
+            border: none;
+            background: #3b82f6;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #2563eb;
+        }
+
+        #error {
+            color: red;
+            margin-top: 10px;
+        }
+
+        #results {
+            margin-top: 20px;
+            background: #334155;
+            padding: 10px;
+            border-radius: 6px;
+        }
+
+        pre {
+            color: #f1f5f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Dashboard</h2>
+
+        <h3>Add Media</h3>
+        <input id="name" placeholder="Nome">
+        <select id="mediaType">
+            <option value="FILME">Filme</option>
+            <option value="SERIE">Serie</option>
+            <option value="ANIME">Anime</option>
+            <option value="DORAMA">Dorame</option>
+            <option value="LIVRO">Livro</option>
+            <option value="REALITY">Reality</option>
+        </select>
+        <input id="duration" placeholder="Duração (min)" type="number">
+        <input id="rating" placeholder="Nota" type="number" step="0.1">
+        <select id="classification">
+            <option value="VALEU">Valeu</option>
+            <option value="NEUTRO">Neutro</option>
+            <option value="NAO_VALEU">Não Valeu</option>
+        </select>
+        <input id="moodBefore" placeholder="Mood Before (0-10)" type="number">
+        <input id="moodAfter" placeholder="Mood After (0-10)" type="number">
+        <select id="emotion">
+            <option value="FELIZ">Feliz</option>
+            <option value="TRISTE">Triste</option>
+            <option value="ANSIOSO">Ansioso</option>
+            <option value="MOTIVADO">Motivado</option>
+            <option value="ENTEDIADO">Entediado</option>
+            <option value="NEUTRO">Neutro</option>
+        </select>
+
+        <button onclick="addMedia()">Adicionar</button>
+
+        <button onclick="getSummary()">Get Summary</button>
+
+        <p id="error"></p>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        async function addMedia() {
+            try {
+                const res = await fetch("/api/media", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({
+                        name: document.getElementById("name").value,
+                        media_type: document.getElementById("mediaType").value,
+                        duration_min: parseInt(document.getElementById("duration").value),
+                        rating: parseFloat(document.getElementById("rating").value),
+                        classification: document.getElementById("classification").value,
+                        mood_before: parseInt(document.getElementById("moodBefore").value),
+                        mood_after: parseInt(document.getElementById("moodAfter").value),
+                        primary_emotion: document.getElementById("emotion").value
+                    })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) throw new Error(data.error);
+
+                alert("Adicionado!");
+
+            } catch (err) {
+                document.getElementById("error").innerText = err.message;
+            }
+        }
+
+        async function getSummary() {
+            try {
+                const res = await fetch("/api/analytics/summary", {
+                    credentials: "include"
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) throw new Error(data.error);
+
+                document.getElementById("results").innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+
+            } catch (err) {
+                document.getElementById("error").innerText = err.message;
+            }
+        }
+    </script>
+</body>
+</html>

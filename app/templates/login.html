@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindTrack Media - Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: #f1f5f9;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+            text-align: center;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 15px;
+            border: none;
+            background: #3b82f6;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #2563eb;
+        }
+
+        #error {
+            color: red;
+            margin-top: 10px;
+        }
+
+        a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Login</h2>
+
+        <input id="email" placeholder="Email" type="email">
+        <input id="password" type="password" placeholder="Senha">
+
+        <button onclick="login()">Entrar</button>
+
+        <p id="error"></p>
+
+        <p>Não tem conta? <a href="/register">Registrar</a></p>
+    </div>
+
+    <script>
+        async function login() {
+            try {
+                const res = await fetch("/api/auth/login", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({
+                        email: document.getElementById("email").value,
+                        password: document.getElementById("password").value
+                    })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) throw new Error(data.error);
+
+                window.location.href = "/dashboard";
+
+            } catch (err) {
+                document.getElementById("error").innerText = err.message;
+            }
+        }
+    </script>
+</body>
+</html>
